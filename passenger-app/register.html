@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Create Passenger Account | TransitNow</title>
+  <link rel="stylesheet" href="/passenger/css/style.css" />
+  <script>
+    const savedTheme = localStorage.getItem('transitnow_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+  <header class="app-header">
+    <a href="/passenger" class="brand">
+      <div class="brand-icon">🚌</div>
+      <div class="brand-title">Transit<span>Now</span></div>
+    </a>
+    <div class="header-actions">
+      <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle Theme">🌙</button>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Create Passenger Account</h1>
+        <p>Register once for live tracking, fast ticketing, and real-time ETAs</p>
+      </div>
+
+      <div id="registerAlert" class="alert-box alert-danger"></div>
+      <div id="registerSuccess" class="alert-box alert-success"></div>
+
+      <form id="passengerRegisterForm">
+        <div class="form-group">
+          <label class="form-label" for="full_name">Full Name</label>
+          <input
+            type="text"
+            id="full_name"
+            class="form-input"
+            placeholder="e.g. Anand Kumar"
+            required
+            autocomplete="name"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="phone">Phone Number</label>
+          <input
+            type="tel"
+            id="phone"
+            class="form-input"
+            placeholder="e.g. 9840123456"
+            required
+            autocomplete="tel"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            class="form-input"
+            placeholder="e.g. anand@example.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            class="form-input"
+            placeholder="Choose a secure password"
+            required
+            autocomplete="new-password"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="confirm_password">Confirm Password</label>
+          <input
+            type="password"
+            id="confirm_password"
+            class="form-input"
+            placeholder="Re-enter your password"
+            required
+            autocomplete="new-password"
+          />
+        </div>
+
+        <button type="submit" id="submitRegisterBtn" class="btn-primary" style="margin-top: 0.5rem;">
+          Register & Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Already have a passenger account?
+        <a href="/passenger/login">Sign in here</a>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth } from '/passenger/js/auth.js';
+
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('transitnow_theme', next);
+      themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    const form = document.getElementById('passengerRegisterForm');
+    const alertBox = document.getElementById('registerAlert');
+    const successBox = document.getElementById('registerSuccess');
+    const submitBtn = document.getElementById('submitRegisterBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+      successBox.style.display = 'none';
+
+      const full_name = document.getElementById('full_name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const confirm_password = document.getElementById('confirm_password').value;
+
+      if (password !== confirm_password) {
+        alertBox.textContent = 'Passwords do not match.';
+        alertBox.style.display = 'block';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account...';
+
+      try {
+        await auth.register({
+          full_name,
+          phone,
+          email,
+          password,
+          confirm_password
+        });
+        successBox.textContent = 'Account created successfully! Redirecting to live transit...';
+        successBox.style.display = 'block';
+        setTimeout(() => {
+          window.location.href = '/passenger';
+        }, 800);
+      } catch (err) {
+        alertBox.textContent = err.message || 'Registration failed. Please check your details.';
+        alertBox.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Register & Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

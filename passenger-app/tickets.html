@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Transit Tickets | TransitNow</title>
+  <link rel="stylesheet" href="/passenger/css/style.css" />
+  <script>
+    const savedTheme = localStorage.getItem('transitnow_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+  <header class="app-header">
+    <a href="/passenger" class="brand">
+      <div class="brand-icon">🚌</div>
+      <div class="brand-title">Transit<span>Now</span></div>
+    </a>
+    <div class="header-actions">
+      <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle Theme">🌙</button>
+      <a href="/passenger" class="btn-icon" title="Map">🗺️</a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Buy Ticket Form -->
+    <div class="auth-container" style="margin-top: 1rem;">
+      <div class="auth-header">
+        <h1>Digital Transit Ticketing</h1>
+        <p>Instant contactless boarding pass with QR verification</p>
+      </div>
+
+      <div id="ticketAlert" class="alert-box alert-danger"></div>
+      <div id="ticketSuccess" class="alert-box alert-success"></div>
+
+      <form id="purchaseTicketForm">
+        <div class="form-group">
+          <label class="form-label" for="ticketBusSelect">Select Bus Line</label>
+          <select id="ticketBusSelect" class="form-select" required>
+            <option value="">Loading buses...</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Ticket Type</label>
+          <select id="ticketTypeSelect" class="form-select">
+            <option value="Single" data-fare="15">Single Journey (₹15.00)</option>
+            <option value="Return" data-fare="28">Return Journey (₹28.00)</option>
+            <option value="Day Pass" data-fare="50">Unlimited Day Pass (₹50.00)</option>
+            <option value="Student" data-fare="8">Student Concession (₹8.00)</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Payment Method (Simulated Gateway)</label>
+          <div class="payment-options">
+            <label class="payment-radio-label">
+              <input type="radio" name="payment_method" value="Google Pay" checked />
+              <span>Google Pay</span>
+            </label>
+            <label class="payment-radio-label">
+              <input type="radio" name="payment_method" value="PhonePe" />
+              <span>PhonePe</span>
+            </label>
+            <label class="payment-radio-label">
+              <input type="radio" name="payment_method" value="Paytm" />
+              <span>Paytm</span>
+            </label>
+            <label class="payment-radio-label">
+              <input type="radio" name="payment_method" value="RuPay" />
+              <span>RuPay Card</span>
+            </label>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted);">
+            ℹ️ <em>MVP Test Mode: Simulated payment transaction. No real bank accounts or funds are debited.</em>
+          </p>
+        </div>
+
+        <button type="submit" id="buyTicketBtn" class="btn-primary" style="margin-top: 0.5rem;">
+          Pay ₹15.00 & Generate Ticket
+        </button>
+      </form>
+
+      <!-- Newly Generated QR Display -->
+      <div id="generatedTicketBox" style="display: none;" class="ticket-qr-card">
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--success); text-transform: uppercase;">
+          ✅ Verified Digital Ticket
+        </div>
+        <div id="ticketNumberDisplay" style="font-size: 1.25rem; font-weight: 800; margin: 0.25rem 0;"></div>
+        <div id="ticketBusNameDisplay" style="font-weight: 600; font-size: 0.95rem;"></div>
+
+        <div class="qr-box">
+          <svg viewBox="0 0 100 100" width="140" height="140">
+            <rect width="100" height="100" fill="#ffffff" />
+            <!-- SVG QR Code visualization -->
+            <path d="M10 10 h30 v30 h-30 z M15 15 v20 h20 v-20 z M20 20 h10 v10 h-10 z" fill="#0f172a"/>
+            <path d="M60 10 h30 v30 h-30 z M65 15 v20 h20 v-20 z M70 20 h10 v10 h-10 z" fill="#0f172a"/>
+            <path d="M10 60 h30 v30 h-30 z M15 65 v20 h20 v-20 z M20 70 h10 v10 h-10 z" fill="#0f172a"/>
+            <rect x="50" y="20" width="5" height="15" fill="#0f172a"/>
+            <rect x="20" y="50" width="25" height="5" fill="#0f172a"/>
+            <rect x="55" y="55" width="35" height="35" fill="#0284c7"/>
+            <rect x="65" y="65" width="15" height="15" fill="#ffffff"/>
+            <circle cx="72.5" cy="72.5" r="4" fill="#0284c7"/>
+          </svg>
+        </div>
+
+        <div id="ticketDetailsDisplay" style="font-size: 0.85rem; color: var(--text-muted);"></div>
+      </div>
+    </div>
+
+    <!-- My Tickets List Section -->
+    <div style="margin-top: 1.5rem;">
+      <h2 class="section-title">My Tickets History</h2>
+      <div id="myTicketsList" class="bus-list">
+        <div class="empty-state">Loading your tickets...</div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { ticketsManager } from '/passenger/js/tickets.js';
+
+    // Theme toggle
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('transitnow_theme', next);
+      themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    // Update button text on fare change
+    const typeSelect = document.getElementById('ticketTypeSelect');
+    const buyBtn = document.getElementById('buyTicketBtn');
+    typeSelect.addEventListener('change', () => {
+      const opt = typeSelect.options[typeSelect.selectedIndex];
+      const fare = opt.getAttribute('data-fare');
+      buyBtn.textContent = `Pay ₹${parseFloat(fare).toFixed(2)} & Generate Ticket`;
+    });
+
+    // Load available buses and current user tickets
+    await ticketsManager.loadBusesForTicket();
+    await ticketsManager.loadPassengerTickets();
+
+    // Auto-select bus if provided in query param ?bus_id=BUS001
+    const urlParams = new URLSearchParams(window.location.search);
+    const busParam = urlParams.get('bus_id');
+    if (busParam) {
+      const busSelect = document.getElementById('ticketBusSelect');
+      busSelect.value = busParam;
+    }
+
+    // Purchase submission
+    const form = document.getElementById('purchaseTicketForm');
+    const alertBox = document.getElementById('ticketAlert');
+    const successBox = document.getElementById('ticketSuccess');
+    const qrCard = document.getElementById('generatedTicketBox');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+      successBox.style.display = 'none';
+
+      const bus_id = document.getElementById('ticketBusSelect').value;
+      const ticket_type = typeSelect.value;
+      const payment_method = document.querySelector('input[name="payment_method"]:checked').value;
+
+      if (!bus_id) {
+        alertBox.textContent = 'Please choose a bus line.';
+        alertBox.style.display = 'block';
+        return;
+      }
+
+      buyBtn.disabled = true;
+      buyBtn.textContent = 'Processing payment simulation...';
+
+      try {
+        const res = await ticketsManager.purchaseTicket({
+          bus_id,
+          ticket_type,
+          payment_method
+        });
+
+        const t = res.ticket;
+        document.getElementById('ticketNumberDisplay').textContent = t.ticket_number;
+        document.getElementById('ticketBusNameDisplay').textContent = `${t.bus_id} • ${t.route_name}`;
+        document.getElementById('ticketDetailsDisplay').innerHTML = `
+          Type: <strong>${t.ticket_type}</strong> • Fare: <strong>₹${t.fare.toFixed(2)}</strong><br/>
+          Payment: <strong>${t.payment_provider}</strong> (${t.transaction_id})<br/>
+          Valid from: ${t.created_at}
+        `;
+
+        qrCard.style.display = 'block';
+        successBox.textContent = res.message;
+        successBox.style.display = 'block';
+
+        // Reload ticket list
+        await ticketsManager.loadPassengerTickets();
+
+        buyBtn.disabled = false;
+        buyBtn.textContent = 'Issue Another Ticket';
+      } catch (err) {
+        alertBox.textContent = err.message || 'Payment processing failed.';
+        alertBox.style.display = 'block';
+        buyBtn.disabled = false;
+        const opt = typeSelect.options[typeSelect.selectedIndex];
+        buyBtn.textContent = `Pay ₹${parseFloat(opt.dataset.fare).toFixed(2)} & Generate Ticket`;
+      }
+    });
+  </script>
+</body>
+</html>

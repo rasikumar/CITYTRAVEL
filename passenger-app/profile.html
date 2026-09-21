@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Passenger Profile | TransitNow</title>
+  <link rel="stylesheet" href="/passenger/css/style.css" />
+  <script>
+    const savedTheme = localStorage.getItem('transitnow_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+  <header class="app-header">
+    <a href="/passenger" class="brand">
+      <div class="brand-icon">🚌</div>
+      <div class="brand-title">Transit<span>Now</span></div>
+    </a>
+    <div class="header-actions">
+      <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle Theme">🌙</button>
+      <a href="/passenger" class="btn-icon" title="Home Map">🗺️</a>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="auth-container" style="margin-top: 1.5rem;">
+      <div class="auth-header">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">👤</div>
+        <h1 id="profileName">Loading Passenger...</h1>
+        <p id="profileEmail">Please wait...</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Phone Number</label>
+        <div id="profilePhone" class="form-input" style="background: var(--bg-card-subtle);">--</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Account Status</label>
+        <div class="form-input" style="background: var(--bg-card-subtle); color: var(--success); font-weight: 600;">
+          Active Passenger Member
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <a href="/passenger/tickets" class="btn-primary">View My Tickets</a>
+        <button id="logoutBtn" class="btn-secondary" style="margin-top: 0; color: var(--danger);">Logout</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth } from '/passenger/js/auth.js';
+
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('transitnow_theme', next);
+      themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      auth.logout();
+    });
+
+    async function loadProfile() {
+      try {
+        const user = await auth.fetchProfile();
+        document.getElementById('profileName').textContent = user.full_name;
+        document.getElementById('profileEmail').textContent = user.email;
+        document.getElementById('profilePhone').textContent = user.phone;
+      } catch (e) {
+        console.warn('Could not fetch remote profile:', e);
+        const local = auth.getUser();
+        if (local) {
+          document.getElementById('profileName').textContent = local.full_name || 'Passenger';
+          document.getElementById('profileEmail').textContent = local.email || '';
+          document.getElementById('profilePhone').textContent = local.phone || '';
+        } else {
+          window.location.href = '/passenger/login';
+        }
+      }
+    }
+
+    loadProfile();
+  </script>
+</body>
+</html>

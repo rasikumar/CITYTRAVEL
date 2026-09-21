@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Fleet Drivers | TransitNow Operations</title>
+  <link rel="stylesheet" href="/operations/css/operations.css" />
+</head>
+<body>
+  <header class="ops-header">
+    <a href="/operations" class="ops-brand">
+      <span style="font-size: 1.5rem;">🎛️</span>
+      <span style="font-size: 1.2rem; font-weight: 800;">TransitNow</span>
+      <span class="ops-badge">DRIVERS</span>
+    </a>
+
+    <nav class="ops-nav">
+      <a href="/operations" class="ops-nav-link">Dashboard</a>
+      <a href="/operations/routes" class="ops-nav-link">Routes & Stops</a>
+      <a href="/operations/buses" class="ops-nav-link">Fleet Buses</a>
+      <a href="/operations/drivers" class="ops-nav-link active">Drivers</a>
+      <a href="/operations/trips" class="ops-nav-link">Live Trips</a>
+    </nav>
+  </header>
+
+  <main class="ops-container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1 style="font-size: 1.3rem; font-weight: 800;">Fleet Drivers Roster</h1>
+      <button id="openCreateDriverModalBtn" class="btn-ops-primary">+ Register Driver</button>
+    </div>
+
+    <!-- Drivers Table -->
+    <div class="table-card">
+      <table class="ops-table">
+        <thead>
+          <tr>
+            <th>Driver ID</th>
+            <th>Full Name</th>
+            <th>Phone</th>
+            <th>Shift Hours</th>
+            <th>Lunch Break</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="driversTableBody">
+          <tr><td colspan="6" style="text-align: center; color: var(--ops-text-muted);">Loading fleet drivers...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Create Driver Modal -->
+  <div id="createDriverModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+    <div style="background: var(--ops-surface); border: 1px solid var(--ops-border); border-radius: 12px; max-width: 500px; width: 100%; padding: 1.5rem;">
+      <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem;">Register Fleet Driver</h2>
+
+      <form id="createDriverForm">
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Driver ID</label>
+            <input type="text" id="newDriverId" class="ops-input" placeholder="e.g. DRV003" required />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Full Name</label>
+            <input type="text" id="newDriverName" class="ops-input" placeholder="e.g. M. Rajesh" required />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Phone Number</label>
+            <input type="tel" id="newDriverPhone" class="ops-input" placeholder="9876543212" required />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Cockpit Password</label>
+            <input type="password" id="newDriverPassword" class="ops-input" placeholder="Min 6 characters" required />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Shift Start</label>
+            <input type="time" id="newShiftStart" class="ops-input" value="08:00" />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Shift End</label>
+            <input type="time" id="newShiftEnd" class="ops-input" value="16:00" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 1.25rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Lunch Start</label>
+            <input type="time" id="newLunchStart" class="ops-input" value="12:30" />
+          </div>
+          <div style="margin-bottom: 1.25rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Lunch End</label>
+            <input type="time" id="newLunchEnd" class="ops-input" value="13:00" />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="submit" class="btn-ops-primary" style="flex: 1;">Create Driver</button>
+          <button type="button" id="closeCreateDriverModalBtn" class="btn-ops-primary" style="background: var(--ops-surface-card); color: var(--ops-text);">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Driver Modal -->
+  <div id="editDriverModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+    <div style="background: var(--ops-surface); border: 1px solid var(--ops-border); border-radius: 12px; max-width: 500px; width: 100%; padding: 1.5rem;">
+      <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem;">Edit Driver: <span id="editDriverCode"></span></h2>
+      <input type="hidden" id="editDriverIdInput" />
+
+      <form id="editDriverForm">
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Full Name</label>
+            <input type="text" id="editDriverName" class="ops-input" required />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Phone Number</label>
+            <input type="tel" id="editDriverPhone" class="ops-input" required />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Shift Start</label>
+            <input type="time" id="editShiftStart" class="ops-input" />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Shift End</label>
+            <input type="time" id="editShiftEnd" class="ops-input" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 1.25rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Lunch Start</label>
+            <input type="time" id="editLunchStart" class="ops-input" />
+          </div>
+          <div style="margin-bottom: 1.25rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Lunch End</label>
+            <input type="time" id="editLunchEnd" class="ops-input" />
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="submit" class="btn-ops-primary" style="flex: 1;">Update Driver</button>
+          <button type="button" id="closeEditDriverModalBtn" class="btn-ops-primary" style="background: var(--ops-surface-card); color: var(--ops-text);">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { driversOps } from '/operations/js/drivers.js';
+
+    await driversOps.loadDrivers();
+
+    const createModal = document.getElementById('createDriverModal');
+    const editModal = document.getElementById('editDriverModal');
+
+    document.getElementById('openCreateDriverModalBtn').addEventListener('click', () => {
+      createModal.style.display = 'flex';
+    });
+
+    document.getElementById('closeCreateDriverModalBtn').addEventListener('click', () => {
+      createModal.style.display = 'none';
+    });
+
+    document.getElementById('closeEditDriverModalBtn').addEventListener('click', () => {
+      editModal.style.display = 'none';
+    });
+
+    document.getElementById('createDriverForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const driver_id = document.getElementById('newDriverId').value.trim();
+      const driver_name = document.getElementById('newDriverName').value.trim();
+      const phone = document.getElementById('newDriverPhone').value.trim();
+      const password = document.getElementById('newDriverPassword').value;
+      const shift_start = document.getElementById('newShiftStart').value;
+      const shift_end = document.getElementById('newShiftEnd').value;
+      const lunch_start = document.getElementById('newLunchStart').value;
+      const lunch_end = document.getElementById('newLunchEnd').value;
+
+      try {
+        await driversOps.handleCreateDriver({
+          driver_id,
+          driver_name,
+          phone,
+          password,
+          shift_start,
+          shift_end,
+          lunch_start,
+          lunch_end
+        });
+        createModal.style.display = 'none';
+        await driversOps.loadDrivers();
+      } catch (err) {
+        alert(err.message || 'Failed to create driver.');
+      }
+    });
+
+    document.getElementById('editDriverForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editDriverIdInput').value;
+      const driver_name = document.getElementById('editDriverName').value.trim();
+      const phone = document.getElementById('editDriverPhone').value.trim();
+      const shift_start = document.getElementById('editShiftStart').value;
+      const shift_end = document.getElementById('editShiftEnd').value;
+      const lunch_start = document.getElementById('editLunchStart').value;
+      const lunch_end = document.getElementById('editLunchEnd').value;
+
+      try {
+        await driversOps.handleUpdateDriver(id, {
+          driver_name,
+          phone,
+          shift_start,
+          shift_end,
+          lunch_start,
+          lunch_end
+        });
+        editModal.style.display = 'none';
+        await driversOps.loadDrivers();
+      } catch (err) {
+        alert(err.message || 'Failed to update driver.');
+      }
+    });
+  </script>
+</body>
+</html>

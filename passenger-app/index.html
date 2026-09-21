@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>TransitNow | Live Bus Tracking & Real-Time ETAs</title>
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- App Styles -->
+  <link rel="stylesheet" href="/passenger/css/style.css" />
+
+  <script>
+    // Immediate Theme Initialization
+    const savedTheme = localStorage.getItem('transitnow_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <a href="/passenger" class="brand">
+      <div class="brand-icon">🚌</div>
+      <div class="brand-title">Transit<span>Now</span></div>
+    </a>
+
+    <div class="header-actions">
+      <!-- Dark/Light Theme Switcher -->
+      <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle Theme">🌙</button>
+
+      <!-- Profile Menu Dropdown -->
+      <div class="profile-menu">
+        <button id="profileMenuBtn" class="btn-icon" aria-label="Passenger Profile">👤</button>
+        <div id="profileDropdown" class="menu-dropdown">
+          <div style="padding: 0.5rem 1rem; border-bottom: 1px solid var(--border-color); font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">
+            Passenger Account
+          </div>
+          <a href="/passenger/profile">👤 Profile</a>
+          <a href="/passenger/tickets">🎟️ My Tickets</a>
+          <a href="#" id="logoutBtn" style="color: var(--danger);">🚪 Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="main-content">
+
+    <!-- 1. Search Bar -->
+    <section class="search-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="transitSearchInput"
+          class="search-input"
+          placeholder="Search Route ID, Route name, Bus ID, Stop name (e.g. 21G, BUS001, Mattuthavani)..."
+          autocomplete="off"
+        />
+        <button id="clearSearchBtn" class="clear-search-btn" aria-label="Clear search">✕</button>
+      </div>
+    </section>
+
+    <!-- 2. Route Quick Filter Badges -->
+    <section class="quick-filters" id="routeFiltersContainer">
+      <button class="filter-badge active" data-route-id="ALL">All Routes</button>
+    </section>
+
+    <!-- 3. Medium Sized Leaflet Map with Layer Controls -->
+    <section class="map-card">
+      <div class="map-header">
+        <div class="map-title">
+          <span>🗺️ Live Fleet Radar</span>
+        </div>
+        <div class="map-actions">
+          <button class="map-btn active" data-layer="osm">Map</button>
+          <button class="map-btn" data-layer="satellite">Satellite</button>
+          <button class="map-btn" data-layer="dark">Dark</button>
+          <button class="map-btn" id="recenterMapBtn" title="Recenter Map">🎯 Recenter</button>
+        </div>
+      </div>
+
+      <div id="map"></div>
+
+      <!-- User Geolocation Button -->
+      <button id="useMyLocationBtn" class="user-location-btn">
+        📍 Use my location
+      </button>
+    </section>
+
+    <!-- Stop Arrival Proximity Banner -->
+    <div id="arrivalBanner" class="arrival-banner"></div>
+
+    <!-- 4. Live Buses Section -->
+    <section>
+      <div class="section-title">
+        <span>Live Buses</span>
+        <span id="busesCountBadge" class="section-count">Loading...</span>
+      </div>
+      <div id="busesListContainer" class="bus-list">
+        <div class="empty-state">
+          <div class="empty-state-icon">🔄</div>
+          <p>Connecting to live transit telemetry...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Travel Updates Section -->
+    <section>
+      <div class="section-title">
+        <span>Travel Updates & Advisories</span>
+      </div>
+      <div id="travelUpdatesContainer" class="updates-list">
+        <div class="update-card">
+          <div class="update-title">Loading travel advisories...</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Floating AI Assistant Button -->
+  <button id="aiFab" class="ai-fab" title="Ask TransitNow AI">🤖</button>
+
+  <!-- AI Assistant Chat Drawer / Modal -->
+  <div id="aiModal" class="ai-modal">
+    <div class="ai-drawer">
+      <div class="ai-drawer-header">
+        <div class="ai-header-title">
+          <span>🤖 TransitNow AI Assistant</span>
+        </div>
+        <button id="aiCloseBtn" class="btn-icon" style="width: 32px; height: 32px;">✕</button>
+      </div>
+
+      <div id="aiMessages" class="ai-messages">
+        <div class="chat-bubble ai">
+          Hello! I can answer real-time questions about active buses, routes, ETAs, delays, and stop arrival times.
+        </div>
+      </div>
+
+      <!-- Quick AI Suggestion Chips -->
+      <div class="chat-suggestions">
+        <button class="suggestion-chip" data-query="Where is BUS001?">Where is BUS001?</button>
+        <button class="suggestion-chip" data-query="When will BUS001 arrive at Mattuthavani?">When will BUS001 arrive?</button>
+        <button class="suggestion-chip" data-query="Why is my bus late?">Why is my bus late?</button>
+        <button class="suggestion-chip" data-query="Find bus to Mattuthavani">Find bus to Mattuthavani</button>
+        <button class="suggestion-chip" data-query="What is the next stop?">What is the next stop?</button>
+      </div>
+
+      <div class="ai-input-bar">
+        <input type="text" id="aiInput" class="ai-input" placeholder="Ask about routes, buses, or ETAs..." />
+        <button id="aiSendBtn" class="ai-send-btn">➔</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <!-- Passenger App Module -->
+  <script type="module" src="/passenger/js/app.js"></script>
+</body>
+</html>

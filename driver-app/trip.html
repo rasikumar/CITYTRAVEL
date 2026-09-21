@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Active Trip Cockpit | TransitNow Driver</title>
+  <link rel="stylesheet" href="/driver-app/css/driver.css" />
+</head>
+<body>
+  <header class="driver-header">
+    <div class="driver-brand">
+      <span style="font-size: 1.4rem;">🚌</span>
+      <div>
+        <div style="font-size: 1.1rem; font-weight: 800;" id="cockpitBusId">BUS001</div>
+        <div style="font-size: 0.75rem; color: var(--driver-text-muted);" id="cockpitRoute">Route Line</div>
+      </div>
+    </div>
+
+    <div class="driver-actions">
+      <div style="text-align: right;">
+        <span style="font-size: 0.7rem; color: var(--driver-text-muted); display: block;">TRIP CODE</span>
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--driver-primary);" id="cockpitTripId">TRIP-001</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="driver-container">
+
+    <!-- Playback Fallback Notification (Shown when GPS is unavailable or user activates) -->
+    <div id="playbackBanner" class="playback-banner" style="display: none;">
+      <div>
+        <div>⚠️ <strong>GPS Signal Weak / Unavailable</strong></div>
+        <div style="font-size: 0.8rem; font-weight: normal;" id="playbackStatusText">
+          Switch to Route Playback to simulate actual scheduled stop progression.
+        </div>
+      </div>
+      <button id="playbackFallbackBtn" style="padding: 0.45rem 0.85rem; background: #f59e0b; color: #000; border: none; border-radius: 6px; font-weight: 800; cursor: pointer;">
+        ROUTE PLAYBACK
+      </button>
+    </div>
+
+    <!-- Live Telemetry Gauges Cockpit -->
+    <div class="telemetry-cockpit">
+      <div class="cockpit-status-bar">
+        <div class="gps-indicator">
+          <div class="gps-dot" id="gpsStatusDot"></div>
+          <span id="gpsStatusLabel">Acquiring GPS Signal...</span>
+        </div>
+        <div style="font-size: 0.8rem; font-weight: 700; color: var(--driver-success);">
+          TRIP ACTIVE
+        </div>
+      </div>
+
+      <!-- Gauges -->
+      <div class="cockpit-grid">
+        <div class="gauge-box">
+          <div class="gauge-label">Vehicle Speed</div>
+          <div class="gauge-number"><span id="cockpitSpeed">0</span> <span class="gauge-unit">km/h</span></div>
+        </div>
+
+        <div class="gauge-box">
+          <div class="gauge-label">GPS Accuracy</div>
+          <div class="gauge-number"><span id="cockpitAccuracy">--</span></div>
+        </div>
+      </div>
+
+      <!-- Next Stop & ETA Target -->
+      <div class="cockpit-grid">
+        <div class="gauge-box" style="text-align: left;">
+          <div class="gauge-label">Next Scheduled Stop</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: var(--driver-text); margin-top: 0.25rem;" id="cockpitNextStop">
+            Calculating...
+          </div>
+        </div>
+
+        <div class="gauge-box" style="text-align: left;">
+          <div class="gauge-label">Estimated Arrival</div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: var(--driver-primary); margin-top: 0.25rem;" id="cockpitEta">
+            Calculating...
+          </div>
+        </div>
+      </div>
+
+      <!-- Raw Coordinates Display -->
+      <div class="cockpit-coords">
+        <span>LAT: <strong id="cockpitLat">0.00000</strong></span>
+        <span>LON: <strong id="cockpitLon">0.00000</strong></span>
+      </div>
+    </div>
+
+    <!-- Cockpit Action Buttons -->
+    <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
+      <button id="reportDelayBtn" class="btn-cockpit-delay">
+        ⚠️ Report Route Delay
+      </button>
+
+      <button id="endTripBtn" class="btn-cockpit-end">
+        🛑 END TRIP
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Report Delay Standard Modal Dialog -->
+  <div id="delayModal" class="delay-modal">
+    <div class="delay-modal-content">
+      <div class="delay-modal-title">
+        <span>⚠️ Report Active Delay</span>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--driver-text-muted); margin-bottom: 1rem;">
+        Select an operational reason. This will immediately notify passengers waiting at upcoming stops via real-time WebSocket.
+      </p>
+
+      <div class="delay-options-list">
+        <button class="delay-option-btn" data-reason="Traffic issue">🚗 Traffic issue / Road jam</button>
+        <button class="delay-option-btn" data-reason="Accident">🚨 Road accident ahead</button>
+        <button class="delay-option-btn" data-reason="Road closure">🚧 Road closure / Diversion</button>
+        <button class="delay-option-btn" data-reason="Passenger boarding">👥 Heavy passenger boarding delay</button>
+        <button class="delay-option-btn" data-reason="Vehicle issue">🔧 Minor vehicle issue</button>
+        <button class="delay-option-btn" data-reason="Weather">🌧️ Severe weather / Torrential rain</button>
+        <button class="delay-option-btn" data-reason="Operational delay">⏱️ Transit operational delay</button>
+        <button class="delay-option-btn" data-reason="Other">❓ Other incident</button>
+      </div>
+
+      <button id="closeDelayModalBtn" style="width: 100%; padding: 0.75rem; background: var(--driver-surface-card); border: 1px solid var(--driver-border); color: #fff; border-radius: 8px; font-weight: 700; cursor: pointer;">
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { DriverTripController } from '/driver-app/js/driver-trip.js';
+
+    const controller = new DriverTripController();
+    await controller.initTripCockpit();
+  </script>
+</body>
+</html>

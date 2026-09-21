@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Route | TransitNow Operations</title>
+  <link rel="stylesheet" href="/operations/css/operations.css" />
+</head>
+<body>
+  <header class="ops-header">
+    <a href="/operations" class="ops-brand">
+      <span style="font-size: 1.5rem;">🎛️</span>
+      <span style="font-size: 1.2rem; font-weight: 800;">TransitNow</span>
+      <span class="ops-badge">EDIT ROUTE</span>
+    </a>
+
+    <nav class="ops-nav">
+      <a href="/operations/routes" class="ops-nav-link">← Back to Routes</a>
+    </nav>
+  </header>
+
+  <main class="ops-container">
+    <div class="ops-form-card">
+      <h1 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 1rem;">
+        Edit Route: <span id="routeCodeHeader" style="color: var(--ops-primary);">--</span>
+      </h1>
+
+      <div id="editRouteAlert" style="display: none; background: #7f1d1d; color: #fca5a5; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.85rem;"></div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="font-size: 0.8rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.35rem;">
+          Route Name
+        </label>
+        <input type="text" id="editRouteName" class="ops-input" />
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <label style="font-size: 0.8rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.35rem;">
+          Direction
+        </label>
+        <select id="editDirection" class="ops-select">
+          <option value="Outbound">Outbound</option>
+          <option value="Inbound">Inbound</option>
+          <option value="Circular">Circular</option>
+        </select>
+      </div>
+
+      <button type="button" id="saveRouteMetaBtn" class="btn-ops-primary" style="margin-bottom: 1.5rem;">
+        Update Route Details
+      </button>
+
+      <hr style="border: 0; border-top: 1px solid var(--ops-border); margin: 1.5rem 0;" />
+
+      <!-- Section: Existing Stops List with Edit, Reorder, Delete -->
+      <h2 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 0.75rem;">
+        Current Sequence of Stops
+      </h2>
+
+      <div id="routeStopsEditList" class="stop-sequence-list">
+        <div style="color: var(--ops-text-muted);">Loading stops...</div>
+      </div>
+
+      <!-- Section: Add another stop to this route -->
+      <div style="background: var(--ops-surface-card); border: 1px solid var(--ops-border); border-radius: 8px; padding: 1.25rem; margin-top: 1.5rem;">
+        <h3 style="font-size: 1rem; font-weight: 700; color: var(--ops-primary); margin-bottom: 0.75rem;">
+          + Add Another Stop to This Route
+        </h3>
+
+        <div style="margin-bottom: 0.75rem; position: relative;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">
+            Search OSM Nominatim
+          </label>
+          <input type="text" id="addStopSearch" class="ops-input" placeholder="Search landmark or street name in Madurai..." autocomplete="off" />
+          <div id="addStopNominatimDropdown" class="nominatim-results"></div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Stop Name</label>
+            <input type="text" id="addStopName" class="ops-input" />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Scheduled Arrival Time</label>
+            <input type="time" id="addStopArrival" class="ops-input" value="09:15" />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Latitude</label>
+            <input type="number" step="0.000001" id="addStopLat" class="ops-input" />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Longitude</label>
+            <input type="number" step="0.000001" id="addStopLon" class="ops-input" />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Dwell Time (Mins)</label>
+          <input type="number" id="addStopDwell" class="ops-input" value="3" min="1" max="20" />
+        </div>
+
+        <button type="button" id="addNewStopBtn" class="btn-ops-primary" style="width: 100%;">
+          Add Stop to Route
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { opsApiRequest } from '/operations/js/operations-api.js';
+    import { routesOps } from '/operations/js/routes.js';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const routeId = urlParams.get('id');
+
+    if (!routeId) {
+      alert('Missing route ID');
+      window.location.href = '/operations/routes';
+    }
+
+    let routeData = null;
+
+    async function loadRoute() {
+      try {
+        const routes = await opsApiRequest('/api/operations/routes');
+        routeData = routes.find(r => r.id == routeId);
+        if (!routeData) throw new Error('Route not found');
+
+        document.getElementById('routeCodeHeader').textContent = routeData.route_id;
+        document.getElementById('editRouteName').value = routeData.route_name;
+        document.getElementById('editDirection').value = routeData.direction;
+
+        renderStopsList(routeData.stops);
+      } catch (err) {
+        console.error('Failed to load route:', err);
+      }
+    }
+
+    function renderStopsList(stops) {
+      const container = document.getElementById('routeStopsEditList');
+      if (!stops || stops.length === 0) {
+        container.innerHTML = `<div style="color: var(--ops-text-muted); padding: 0.5rem;">No stops in this route.</div>`;
+        return;
+      }
+
+      container.innerHTML = stops.map((s, idx) => `
+        <div class="stop-sequence-item" style="flex-direction: column; align-items: stretch; gap: 0.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 800; color: var(--ops-primary);">Seq #${s.sequence || (idx + 1)}: ${s.stop_name}</span>
+            <div>
+              <button class="btn-action-sm btn-action-del" data-del-stop="${s.stop_id}">Delete Stop</button>
+            </div>
+          </div>
+          <div class="form-grid-2">
+            <div>
+              <label style="font-size: 0.7rem; color: var(--ops-text-muted);">Coordinates (Lat, Lon)</label>
+              <input type="text" class="ops-input" value="${s.latitude}, ${s.longitude}" data-edit-coords="${s.stop_id}" />
+            </div>
+            <div>
+              <label style="font-size: 0.7rem; color: var(--ops-text-muted);">Arrival Time & Dwell</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="time" class="ops-input" value="${s.scheduled_arrival_time || '08:00'}" data-edit-arrival="${s.stop_id}" />
+                <input type="number" class="ops-input" value="${s.dwell_time_minutes || 3}" data-edit-dwell="${s.stop_id}" style="width: 70px;" />
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Attach delete stop events
+      container.querySelectorAll('[data-del-stop]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const stopId = btn.dataset.delStop;
+          if (confirm('Delete this stop from the route?')) {
+            // Re-filter locally and alert
+            routeData.stops = routeData.stops.filter(st => st.stop_id !== stopId);
+            renderStopsList(routeData.stops);
+            alert('Stop removed. Click Update Route Details to synchronize.');
+          }
+        });
+      });
+    }
+
+    // Save meta
+    document.getElementById('saveRouteMetaBtn').addEventListener('click', async () => {
+      const name = document.getElementById('editRouteName').value.trim();
+      const direction = document.getElementById('editDirection').value;
+
+      try {
+        await opsApiRequest(`/api/operations/routes/${routeId}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            route_name: name,
+            direction: direction
+          })
+        });
+        alert('Route details updated successfully!');
+      } catch (err) {
+        alert(err.message || 'Update failed.');
+      }
+    });
+
+    // Nominatim hook for add stop
+    const addLocInput = document.getElementById('addStopSearch');
+    const addDropdown = document.getElementById('addStopNominatimDropdown');
+    const addLat = document.getElementById('addStopLat');
+    const addLon = document.getElementById('addStopLon');
+    const addName = document.getElementById('addStopName');
+
+    routesOps.bindNominatimInput(addLocInput, addDropdown, addLat, addLon);
+    addLocInput.addEventListener('change', () => {
+      if (!addName.value) {
+        addName.value = addLocInput.value.split(',')[0].trim();
+      }
+    });
+
+    // Add Stop Button
+    document.getElementById('addNewStopBtn').addEventListener('click', async () => {
+      const stop_name = addName.value.trim() || addLocInput.value.trim();
+      const lat = parseFloat(addLat.value);
+      const lon = parseFloat(addLon.value);
+      const scheduled_arrival_time = document.getElementById('addStopArrival').value;
+      const dwell_time_minutes = parseInt(document.getElementById('addStopDwell').value) || 3;
+
+      if (!stop_name || isNaN(lat) || isNaN(lon)) {
+        alert('Please provide stop name and valid coordinates.');
+        return;
+      }
+
+      try {
+        await opsApiRequest(`/api/operations/routes/${routeId}/stops`, {
+          method: 'POST',
+          body: JSON.stringify({
+            stop_name,
+            latitude: lat,
+            longitude: lon,
+            sequence: (routeData.stops ? routeData.stops.length : 0) + 1,
+            scheduled_arrival_time,
+            dwell_time_minutes
+          })
+        });
+
+        alert(`Stop ${stop_name} successfully added!`);
+        addLocInput.value = '';
+        addName.value = '';
+        addLat.value = '';
+        addLon.value = '';
+        await loadRoute();
+      } catch (err) {
+        alert(err.message || 'Failed to add stop.');
+      }
+    });
+
+    loadRoute();
+  </script>
+</body>
+</html>

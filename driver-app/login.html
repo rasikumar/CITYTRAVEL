@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Driver Sign In | TransitNow Driver Cockpit</title>
+  <link rel="stylesheet" href="/driver-app/css/driver.css" />
+</head>
+<body>
+  <!-- Dedicated Driver Cockpit Header (No passenger or admin links) -->
+  <header class="driver-header">
+    <div class="driver-brand">
+      <span style="font-size: 1.4rem;">🚌</span>
+      <span style="font-size: 1.2rem; font-weight: 800;">TransitNow</span>
+      <span class="driver-badge">DRIVER PORTAL</span>
+    </div>
+  </header>
+
+  <main class="driver-container" style="justify-content: center;">
+    <div style="background: var(--driver-surface); border: 1px solid var(--driver-border); border-radius: 16px; padding: 2rem 1.5rem;">
+      <div style="text-align: center; margin-bottom: 1.5rem;">
+        <div style="font-size: 3rem; margin-bottom: 0.5rem;">👨‍✈️</div>
+        <h1 style="font-size: 1.4rem; font-weight: 800;">Fleet Driver Sign In</h1>
+        <p style="color: var(--driver-text-muted); font-size: 0.85rem; margin-top: 0.25rem;">
+          Enter your authorized Driver ID and password to access your assigned vehicle and shift.
+        </p>
+      </div>
+
+      <div id="driverLoginAlert" style="display: none; background: #7f1d1d; color: #fca5a5; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; margin-bottom: 1rem;"></div>
+
+      <form id="driverLoginForm">
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--driver-text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">
+            Driver ID
+          </label>
+          <input
+            type="text"
+            id="driver_id"
+            style="width: 100%; padding: 0.8rem 1rem; background: var(--driver-surface-card); border: 1px solid var(--driver-border); border-radius: 8px; color: #fff; font-size: 1rem; font-weight: 600; outline: none;"
+            placeholder="e.g. DRV001"
+            value="DRV001"
+            required
+            autocomplete="username"
+          />
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; font-size: 0.8rem; font-weight: 700; color: var(--driver-text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">
+            Driver Password
+          </label>
+          <input
+            type="password"
+            id="driver_password"
+            style="width: 100%; padding: 0.8rem 1rem; background: var(--driver-surface-card); border: 1px solid var(--driver-border); border-radius: 8px; color: #fff; font-size: 1rem; outline: none;"
+            placeholder="Enter password"
+            value="password123"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button
+          type="submit"
+          id="driverSubmitBtn"
+          style="width: 100%; padding: 0.95rem; background: var(--driver-primary); color: #0f172a; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: 800; cursor: pointer;"
+        >
+          Sign In to Driver Cockpit
+        </button>
+      </form>
+
+      <div style="margin-top: 1.5rem; text-align: center; font-size: 0.8rem; color: var(--driver-text-muted);">
+        Demo Credentials: ID <strong>DRV001</strong> • Password <strong>password123</strong>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { driverAuth } from '/driver-app/js/driver-auth.js';
+
+    const form = document.getElementById('driverLoginForm');
+    const alertBox = document.getElementById('driverLoginAlert');
+    const submitBtn = document.getElementById('driverSubmitBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Authenticating driver...';
+
+      const driver_id = document.getElementById('driver_id').value.trim();
+      const password = document.getElementById('driver_password').value;
+
+      try {
+        await driverAuth.login(driver_id, password);
+        window.location.href = '/driver-app';
+      } catch (err) {
+        alertBox.textContent = err.message || 'Invalid Driver ID or Password.';
+        alertBox.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In to Driver Cockpit';
+      }
+    });
+  </script>
+</body>
+</html>

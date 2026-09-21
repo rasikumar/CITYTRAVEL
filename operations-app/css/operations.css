@@ -1,0 +1,315 @@
+/* TransitNow Operations & Fleet Administration Stylesheet */
+:root {
+  --ops-bg: #0f172a;
+  --ops-surface: #1e293b;
+  --ops-surface-card: #283548;
+  --ops-border: #334155;
+  --ops-primary: #38bdf8;
+  --ops-primary-hover: #0284c7;
+  --ops-accent: #f59e0b;
+  --ops-success: #10b981;
+  --ops-danger: #ef4444;
+  --ops-text: #f8fafc;
+  --ops-text-muted: #94a3b8;
+  --ops-header: #1e293b;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body {
+  background-color: var(--ops-bg);
+  color: var(--ops-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Operations Header */
+.ops-header {
+  background: var(--ops-header);
+  border-bottom: 2px solid var(--ops-border);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ops-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--ops-text);
+}
+
+.ops-badge {
+  background: #475569;
+  color: #38bdf8;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+}
+
+.ops-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.ops-nav-link {
+  color: var(--ops-text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.ops-nav-link:hover, .ops-nav-link.active {
+  color: var(--ops-text);
+  background: var(--ops-surface-card);
+}
+
+.btn-ops-logout {
+  background: transparent;
+  border: 1px solid var(--ops-border);
+  color: #f87171;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-ops-logout:hover {
+  background: #450a0a;
+}
+
+/* Main Container (Compact, High-density layout) */
+.ops-container {
+  flex: 1;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Dashboard Summary KPI Counters */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.kpi-card {
+  background: var(--ops-surface);
+  border: 1px solid var(--ops-border);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.kpi-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--ops-text-muted);
+  text-transform: uppercase;
+}
+
+.kpi-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--ops-primary);
+  margin-top: 0.25rem;
+}
+
+/* Tables & Lists */
+.table-card {
+  background: var(--ops-surface);
+  border: 1px solid var(--ops-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.table-header {
+  padding: 0.85rem 1.25rem;
+  border-bottom: 1px solid var(--ops-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.ops-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  text-align: left;
+}
+
+.ops-table th {
+  background: var(--ops-surface-card);
+  padding: 0.65rem 1rem;
+  font-weight: 700;
+  color: var(--ops-text-muted);
+  border-bottom: 1px solid var(--ops-border);
+  text-transform: uppercase;
+  font-size: 0.75rem;
+}
+
+.ops-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--ops-border);
+  color: var(--ops-text);
+  vertical-align: middle;
+}
+
+.ops-table tr:hover td {
+  background: var(--ops-surface-card);
+}
+
+/* Action Buttons in Tables */
+.btn-action-sm {
+  padding: 0.3rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--ops-border);
+  background: var(--ops-surface-card);
+  color: var(--ops-text);
+  margin-right: 0.25rem;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-action-sm:hover {
+  background: var(--ops-primary);
+  color: #0f172a;
+}
+
+.btn-action-del {
+  color: #f87171;
+  border-color: #7f1d1d;
+}
+
+.btn-action-del:hover {
+  background: #ef4444;
+  color: #fff;
+}
+
+/* Forms & Modals */
+.ops-form-card {
+  background: var(--ops-surface);
+  border: 1px solid var(--ops-border);
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 600px) {
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ops-input, .ops-select {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  background: var(--ops-surface-card);
+  border: 1px solid var(--ops-border);
+  border-radius: 6px;
+  color: var(--ops-text);
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.ops-input:focus, .ops-select:focus {
+  border-color: var(--ops-primary);
+}
+
+.btn-ops-primary {
+  padding: 0.7rem 1.25rem;
+  background: var(--ops-primary);
+  color: #0f172a;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-ops-primary:hover {
+  background: var(--ops-primary-hover);
+}
+
+/* Nominatim Geocoding Auto-suggest Dropdown */
+.nominatim-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--ops-surface);
+  border: 1px solid var(--ops-primary);
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 500;
+  display: none;
+}
+
+.nominatim-item {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid var(--ops-border);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.nominatim-item:hover {
+  background: var(--ops-surface-card);
+  color: var(--ops-primary);
+}
+
+/* Stop Sequences Drag/Reorder List */
+.stop-sequence-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.stop-sequence-item {
+  background: var(--ops-surface-card);
+  border: 1px solid var(--ops-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}

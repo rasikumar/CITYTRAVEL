@@ -1,0 +1,66 @@
+{
+  "agency": "Madurai City Transport Corporation (TransitNow)",
+  "city": "Madurai, Tamil Nadu, India",
+  "routes": [
+    {
+      "route_id": "21G",
+      "route_name": "Madurai Central - Mattuthavani",
+      "direction": "Outbound",
+      "stops": [
+        {"stop_id": "STP001", "name": "Madurai Central", "lat": 9.9195, "lon": 78.1118, "seq": 1, "arrival": "08:30", "dwell": 5},
+        {"stop_id": "STP002", "name": "Thirumalai Nayakkar Mahal", "lat": 9.9152, "lon": 78.1235, "seq": 2, "arrival": "08:40", "dwell": 3},
+        {"stop_id": "STP003", "name": "Goripalayam", "lat": 9.9325, "lon": 78.1285, "seq": 3, "arrival": "08:50", "dwell": 4},
+        {"stop_id": "STP004", "name": "Mattuthavani", "lat": 9.9482, "lon": 78.1585, "seq": 4, "arrival": "09:05", "dwell": 5}
+      ]
+    },
+    {
+      "route_id": "10A",
+      "route_name": "Periyar - Othakadai Express",
+      "direction": "Outbound",
+      "stops": [
+        {"stop_id": "STP005", "name": "Periyar Bus Stand", "lat": 9.9175, "lon": 78.1130, "seq": 1, "arrival": "09:00", "dwell": 5},
+        {"stop_id": "STP001", "name": "Madurai Central", "lat": 9.9195, "lon": 78.1118, "seq": 2, "arrival": "09:10", "dwell": 4},
+        {"stop_id": "STP006", "name": "Simmakkal", "lat": 9.9270, "lon": 78.1210, "seq": 3, "arrival": "09:25", "dwell": 3},
+        {"stop_id": "STP007", "name": "Othakadai", "lat": 9.9700, "lon": 78.1900, "seq": 4, "arrival": "09:50", "dwell": 5}
+      ]
+    }
+  ],
+  "drivers": [
+    {
+      "driver_id": "DRV001",
+      "driver_name": "K. Murugan",
+      "phone": "9876543210",
+      "shift_start": "08:00",
+      "shift_end": "16:00",
+      "lunch_start": "12:30",
+      "lunch_end": "13:00"
+    },
+    {
+      "driver_id": "DRV002",
+      "driver_name": "S. Arumugam",
+      "phone": "9876543211",
+      "shift_start": "14:00",
+      "shift_end": "22:00",
+      "lunch_start": "18:00",
+      "lunch_end": "18:30"
+    }
+  ],
+  "buses": [
+    {
+      "bus_id": "BUS001",
+      "registration_number": "TN-58-AA-1234",
+      "bus_name": "Madurai City Express 21G",
+      "capacity": 52,
+      "assigned_driver": "DRV001",
+      "assigned_route": "21G"
+    },
+    {
+      "bus_id": "BUS002",
+      "registration_number": "TN-58-AB-5678",
+      "bus_name": "Vaigai Metro Liner 10A",
+      "capacity": 50,
+      "assigned_driver": "DRV002",
+      "assigned_route": "10A"
+    }
+  ]
+}

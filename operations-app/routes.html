@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Routes | TransitNow Operations</title>
+  <link rel="stylesheet" href="/operations/css/operations.css" />
+</head>
+<body>
+  <header class="ops-header">
+    <a href="/operations" class="ops-brand">
+      <span style="font-size: 1.5rem;">🎛️</span>
+      <span style="font-size: 1.2rem; font-weight: 800;">TransitNow</span>
+      <span class="ops-badge">ROUTES</span>
+    </a>
+
+    <nav class="ops-nav">
+      <a href="/operations" class="ops-nav-link">Dashboard</a>
+      <a href="/operations/routes" class="ops-nav-link active">Routes & Stops</a>
+      <a href="/operations/buses" class="ops-nav-link">Fleet Buses</a>
+      <a href="/operations/drivers" class="ops-nav-link">Drivers</a>
+      <a href="/operations/trips" class="ops-nav-link">Live Trips</a>
+    </nav>
+  </header>
+
+  <main class="ops-container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1 style="font-size: 1.3rem; font-weight: 800;">Transit Routes Management</h1>
+      <a href="/operations/route-create" class="btn-ops-primary">+ Create New Route</a>
+    </div>
+
+    <div class="table-card">
+      <table class="ops-table">
+        <thead>
+          <tr>
+            <th>Route Code</th>
+            <th>Route Name</th>
+            <th>Direction</th>
+            <th>Stops</th>
+            <th>Assigned Buses</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="routesTableBody">
+          <tr><td colspan="6" style="text-align: center; color: var(--ops-text-muted);">Loading routes...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script type="module">
+    import { routesOps } from '/operations/js/routes.js';
+    routesOps.loadRoutes();
+  </script>
+</body>
+</html>

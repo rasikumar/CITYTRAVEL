@@ -1,0 +1,436 @@
+/* TransitNow Driver Cockpit Application Stylesheet */
+:root {
+  --driver-bg: #0f172a;
+  --driver-surface: #1e293b;
+  --driver-surface-card: #273549;
+  --driver-border: #334155;
+  --driver-primary: #38bdf8;
+  --driver-primary-hover: #0284c7;
+  --driver-accent: #f59e0b;
+  --driver-success: #10b981;
+  --driver-danger: #ef4444;
+  --driver-text: #f8fafc;
+  --driver-text-muted: #94a3b8;
+  --driver-gauge-bg: #0b1120;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  background-color: var(--driver-bg);
+  color: var(--driver-text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Driver Dedicated Header */
+.driver-header {
+  background: var(--driver-surface);
+  border-bottom: 2px solid var(--driver-border);
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.driver-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-decoration: none;
+  color: var(--driver-text);
+}
+
+.driver-badge {
+  background: #0369a1;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.driver-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.driver-profile-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--driver-surface-card);
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--driver-text);
+  text-decoration: none;
+}
+
+.btn-driver-logout {
+  background: transparent;
+  border: 1px solid var(--driver-border);
+  color: #f87171;
+  padding: 0.4rem 0.8rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.btn-driver-logout:hover {
+  background: #450a0a;
+  border-color: #ef4444;
+}
+
+/* Main Container */
+.driver-container {
+  flex: 1;
+  max-width: 650px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Driver Profile Card */
+.driver-info-card {
+  background: var(--driver-surface);
+  border: 1px solid var(--driver-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.driver-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #0284c7;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  border: 2px solid var(--driver-primary);
+  flex-shrink: 0;
+}
+
+.driver-details h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.driver-id-tag {
+  color: var(--driver-primary);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.driver-meta {
+  font-size: 0.85rem;
+  color: var(--driver-text-muted);
+  margin-top: 0.2rem;
+}
+
+/* Shift Schedule Banner */
+.shift-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.shift-card {
+  background: var(--driver-surface-card);
+  border: 1px solid var(--driver-border);
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+}
+
+.shift-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--driver-text-muted);
+  text-transform: uppercase;
+}
+
+.shift-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--driver-text);
+  margin-top: 0.2rem;
+}
+
+/* Assignment Card (ONLY assigned bus & route) */
+.assignment-card {
+  background: var(--driver-surface);
+  border: 2px solid var(--driver-primary);
+  border-radius: 16px;
+  padding: 1.25rem;
+}
+
+.assignment-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--driver-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.assignment-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--driver-border);
+}
+
+.assignment-item:last-child {
+  border-bottom: none;
+}
+
+.item-key {
+  color: var(--driver-text-muted);
+  font-size: 0.9rem;
+}
+
+.item-val {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--driver-text);
+}
+
+/* Primary Action Big Buttons */
+.btn-cockpit-start {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  padding: 1.25rem;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+  transition: transform 0.15s;
+  width: 100%;
+}
+
+.btn-cockpit-start:hover {
+  transform: translateY(-2px);
+}
+
+.btn-cockpit-end {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+}
+
+.btn-cockpit-delay {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  cursor: pointer;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+}
+
+/* Live Cockpit Telemetry Telemetry Gauges */
+.telemetry-cockpit {
+  background: var(--driver-gauge-bg);
+  border: 1px solid var(--driver-border);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.cockpit-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--driver-border);
+}
+
+.gps-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.gps-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: pulse 1.5s infinite;
+}
+
+.gps-dot.offline {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444;
+}
+
+.cockpit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.gauge-box {
+  background: var(--driver-surface);
+  border: 1px solid var(--driver-border);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.gauge-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--driver-text-muted);
+  text-transform: uppercase;
+}
+
+.gauge-number {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--driver-primary);
+  margin-top: 0.2rem;
+}
+
+.gauge-unit {
+  font-size: 0.8rem;
+  color: var(--driver-text-muted);
+}
+
+.cockpit-coords {
+  background: var(--driver-surface);
+  border: 1px solid var(--driver-border);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  font-family: monospace;
+  font-size: 0.85rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Playback Fallback Banner */
+.playback-banner {
+  background: #451a03;
+  border: 2px solid #f59e0b;
+  color: #fde68a;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Modal Dialog for Delay Report */
+.delay-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.delay-modal.show {
+  display: flex;
+}
+
+.delay-modal-content {
+  background: var(--driver-surface);
+  border: 1px solid var(--driver-border);
+  border-radius: 16px;
+  max-width: 480px;
+  width: 100%;
+  padding: 1.5rem;
+}
+
+.delay-modal-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.delay-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.delay-option-btn {
+  background: var(--driver-surface-card);
+  border: 1px solid var(--driver-border);
+  color: var(--driver-text);
+  padding: 0.8rem 1rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.delay-option-btn:hover {
+  background: var(--driver-primary);
+  color: #0f172a;
+}
+
+.delay-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}

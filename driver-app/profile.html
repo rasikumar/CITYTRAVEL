@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Driver Profile | TransitNow</title>
+  <link rel="stylesheet" href="/driver-app/css/driver.css" />
+</head>
+<body>
+  <header class="driver-header">
+    <div class="driver-brand">
+      <span style="font-size: 1.4rem;">🚌</span>
+      <span style="font-size: 1.15rem; font-weight: 800;">TransitNow</span>
+      <span class="driver-badge">DRIVER PROFILE</span>
+    </div>
+
+    <div class="driver-actions">
+      <a href="/driver-app" class="btn-driver-logout" style="color: var(--driver-primary); border-color: var(--driver-primary);">
+        Cockpit
+      </a>
+    </div>
+  </header>
+
+  <main class="driver-container" style="margin-top: 1rem;">
+    <div class="driver-info-card">
+      <div class="driver-avatar">👨‍✈️</div>
+      <div class="driver-details">
+        <h2 id="profName">Driver</h2>
+        <div class="driver-id-tag">ID: <span id="profId">--</span></div>
+        <div class="driver-meta">Phone: <span id="profPhone">--</span></div>
+      </div>
+    </div>
+
+    <div class="shift-grid">
+      <div class="shift-card">
+        <div class="shift-label">Shift Hours</div>
+        <div class="shift-value" id="profShift">--</div>
+      </div>
+      <div class="shift-card">
+        <div class="shift-label">Lunch Interval</div>
+        <div class="shift-value" id="profLunch">--</div>
+      </div>
+    </div>
+
+    <button id="profLogoutBtn" class="btn-cockpit-end" style="margin-top: 1.5rem;">
+      Sign Out of Driver Cockpit
+    </button>
+  </main>
+
+  <script type="module">
+    import { driverAuth } from '/driver-app/js/driver-auth.js';
+
+    document.getElementById('profLogoutBtn').addEventListener('click', () => {
+      driverAuth.logout();
+    });
+
+    async function loadDriver() {
+      try {
+        const res = await driverAuth.fetchProfile();
+        const d = res.driver;
+        document.getElementById('profName').textContent = d.driver_name;
+        document.getElementById('profId').textContent = d.driver_id;
+        document.getElementById('profPhone').textContent = d.phone;
+        document.getElementById('profShift').textContent = `${d.shift_start} - ${d.shift_end}`;
+        document.getElementById('profLunch').textContent = `${d.lunch_start} - ${d.lunch_end}`;
+      } catch (e) {
+        console.warn('Could not load profile:', e);
+      }
+    }
+    loadDriver();
+  </script>
+</body>
+</html>

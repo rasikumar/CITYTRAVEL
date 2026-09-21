@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Fleet Buses | TransitNow Operations</title>
+  <link rel="stylesheet" href="/operations/css/operations.css" />
+</head>
+<body>
+  <header class="ops-header">
+    <a href="/operations" class="ops-brand">
+      <span style="font-size: 1.5rem;">🎛️</span>
+      <span style="font-size: 1.2rem; font-weight: 800;">TransitNow</span>
+      <span class="ops-badge">BUSES</span>
+    </a>
+
+    <nav class="ops-nav">
+      <a href="/operations" class="ops-nav-link">Dashboard</a>
+      <a href="/operations/routes" class="ops-nav-link">Routes & Stops</a>
+      <a href="/operations/buses" class="ops-nav-link active">Fleet Buses</a>
+      <a href="/operations/drivers" class="ops-nav-link">Drivers</a>
+      <a href="/operations/trips" class="ops-nav-link">Live Trips</a>
+    </nav>
+  </header>
+
+  <main class="ops-container">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <h1 style="font-size: 1.3rem; font-weight: 800;">Fleet Vehicles Management</h1>
+      <button id="openCreateBusModalBtn" class="btn-ops-primary">+ Register New Bus</button>
+    </div>
+
+    <!-- Buses Table -->
+    <div class="table-card">
+      <table class="ops-table">
+        <thead>
+          <tr>
+            <th>Bus ID</th>
+            <th>Display Name</th>
+            <th>Registration #</th>
+            <th>Capacity</th>
+            <th>Assigned Driver</th>
+            <th>Assigned Route</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="busesTableBody">
+          <tr><td colspan="7" style="text-align: center; color: var(--ops-text-muted);">Loading fleet buses...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Create Bus Modal -->
+  <div id="createBusModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+    <div style="background: var(--ops-surface); border: 1px solid var(--ops-border); border-radius: 12px; max-width: 500px; width: 100%; padding: 1.5rem;">
+      <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem;">Register Fleet Bus</h2>
+
+      <form id="createBusForm">
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Bus ID</label>
+            <input type="text" id="newBusId" class="ops-input" placeholder="e.g. BUS003" required />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Registration #</label>
+            <input type="text" id="newBusReg" class="ops-input" placeholder="TN-58-AC-9012" required />
+          </div>
+        </div>
+
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Bus Name</label>
+            <input type="text" id="newBusName" class="ops-input" placeholder="Madurai City Shuttle" required />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Seating Capacity</label>
+            <input type="number" id="newBusCapacity" class="ops-input" value="50" min="10" max="100" />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Assign Driver</label>
+          <select id="newBusDriverSelect" class="ops-select">
+            <option value="">-- Select Driver --</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Assign Route</label>
+          <select id="newBusRouteSelect" class="ops-select">
+            <option value="">-- Select Route --</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="submit" class="btn-ops-primary" style="flex: 1;">Save Bus</button>
+          <button type="button" id="closeCreateBusModalBtn" class="btn-ops-primary" style="background: var(--ops-surface-card); color: var(--ops-text);">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Edit Bus Modal -->
+  <div id="editBusModal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.75); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 1rem;">
+    <div style="background: var(--ops-surface); border: 1px solid var(--ops-border); border-radius: 12px; max-width: 500px; width: 100%; padding: 1.5rem;">
+      <h2 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem;">Edit Bus: <span id="editBusCode"></span></h2>
+      <input type="hidden" id="editBusIdInput" />
+
+      <form id="editBusForm">
+        <div class="form-grid-2">
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Registration #</label>
+            <input type="text" id="editBusReg" class="ops-input" required />
+          </div>
+          <div style="margin-bottom: 0.75rem;">
+            <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Bus Name</label>
+            <input type="text" id="editBusName" class="ops-input" required />
+          </div>
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Seating Capacity</label>
+          <input type="number" id="editBusCapacity" class="ops-input" />
+        </div>
+
+        <div style="margin-bottom: 0.75rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Change Driver</label>
+          <select id="editBusDriverSelect" class="ops-select">
+            <option value="">-- No Driver Assigned --</option>
+          </select>
+        </div>
+
+        <div style="margin-bottom: 1.25rem;">
+          <label style="font-size: 0.75rem; font-weight: 700; color: var(--ops-text-muted); display: block; margin-bottom: 0.25rem;">Change Route</label>
+          <select id="editBusRouteSelect" class="ops-select">
+            <option value="">-- No Route Assigned --</option>
+          </select>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <button type="submit" class="btn-ops-primary" style="flex: 1;">Update Bus</button>
+          <button type="button" id="closeEditBusModalBtn" class="btn-ops-primary" style="background: var(--ops-surface-card); color: var(--ops-text);">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { busesOps } from '/operations/js/buses.js';
+
+    await busesOps.loadBuses();
+    await busesOps.populateSelectors('newBusDriverSelect', 'newBusRouteSelect');
+    await busesOps.populateSelectors('editBusDriverSelect', 'editBusRouteSelect');
+
+    const createModal = document.getElementById('createBusModal');
+    const editModal = document.getElementById('editBusModal');
+
+    document.getElementById('openCreateBusModalBtn').addEventListener('click', () => {
+      createModal.style.display = 'flex';
+    });
+
+    document.getElementById('closeCreateBusModalBtn').addEventListener('click', () => {
+      createModal.style.display = 'none';
+    });
+
+    document.getElementById('closeEditBusModalBtn').addEventListener('click', () => {
+      editModal.style.display = 'none';
+    });
+
+    document.getElementById('createBusForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const bus_id = document.getElementById('newBusId').value.trim();
+      const registration_number = document.getElementById('newBusReg').value.trim();
+      const bus_name = document.getElementById('newBusName').value.trim();
+      const capacity = parseInt(document.getElementById('newBusCapacity').value) || 50;
+      const driver_id = parseInt(document.getElementById('newBusDriverSelect').value) || null;
+      const route_id = parseInt(document.getElementById('newBusRouteSelect').value) || null;
+
+      try {
+        await busesOps.handleCreateBus({
+          bus_id,
+          registration_number,
+          bus_name,
+          capacity,
+          driver_id,
+          route_id
+        });
+        createModal.style.display = 'none';
+        await busesOps.loadBuses();
+      } catch (err) {
+        alert(err.message || 'Failed to create bus.');
+      }
+    });
+
+    document.getElementById('editBusForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('editBusIdInput').value;
+      const registration_number = document.getElementById('editBusReg').value.trim();
+      const bus_name = document.getElementById('editBusName').value.trim();
+      const capacity = parseInt(document.getElementById('editBusCapacity').value) || 50;
+      const driver_id = parseInt(document.getElementById('editBusDriverSelect').value) || 0;
+      const route_id = parseInt(document.getElementById('editBusRouteSelect').value) || 0;
+
+      try {
+        await busesOps.handleUpdateBus(id, {
+          registration_number,
+          bus_name,
+          capacity,
+          driver_id,
+          route_id
+        });
+        editModal.style.display = 'none';
+        await busesOps.loadBuses();
+      } catch (err) {
+        alert(err.message || 'Failed to update bus.');
+      }
+    });
+  </script>
+</body>
+</html>

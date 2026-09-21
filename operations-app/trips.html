@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trips & Telemetry Monitor | TransitNow Operations</title>
+  <link rel="stylesheet" href="/operations/css/operations.css" />
+</head>
+<body>
+  <header class="ops-header">
+    <a href="/operations" class="ops-brand">
+      <span style="font-size: 1.5rem;">🎛️</span>
+      <span style="font-size: 1.2rem; font-weight: 800;">TransitNow</span>
+      <span class="ops-badge">LIVE MONITOR</span>
+    </a>
+
+    <nav class="ops-nav">
+      <a href="/operations" class="ops-nav-link">Dashboard</a>
+      <a href="/operations/routes" class="ops-nav-link">Routes & Stops</a>
+      <a href="/operations/buses" class="ops-nav-link">Fleet Buses</a>
+      <a href="/operations/drivers" class="ops-nav-link">Drivers</a>
+      <a href="/operations/trips" class="ops-nav-link active">Live Trips</a>
+    </nav>
+  </header>
+
+  <main class="ops-container">
+    <h1 style="font-size: 1.3rem; font-weight: 800;">Fleet Trips & Telemetry Stream Monitor</h1>
+
+    <!-- Active Trips List -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">Recent Trips & Execution Status</span>
+        <button id="refreshTripsBtn" class="btn-action-sm">🔄 Refresh Data</button>
+      </div>
+      <table class="ops-table">
+        <thead>
+          <tr>
+            <th>Trip ID</th>
+            <th>Bus ID</th>
+            <th>Driver</th>
+            <th>Route Line</th>
+            <th>Started At</th>
+            <th>Status</th>
+            <th>Delays Reported</th>
+          </tr>
+        </thead>
+        <tbody id="tripsMonitorTableBody">
+          <tr><td colspan="7" style="text-align: center; color: var(--ops-text-muted);">Loading trips...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Live Telemetry Audit Stream -->
+    <div class="table-card">
+      <div class="table-header">
+        <span class="table-title">GPS Telemetry Audit Log (Last 100 Coordinates)</span>
+      </div>
+      <table class="ops-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Bus</th>
+            <th>Coordinates (Lat, Lon)</th>
+            <th>Speed</th>
+            <th>Accuracy</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody id="telemetryTableBody">
+          <tr><td colspan="6" style="text-align: center; color: var(--ops-text-muted);">Loading telemetry stream...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <script type="module">
+    import { tripsOps } from '/operations/js/trips.js';
+
+    await tripsOps.loadTripsMonitor();
+
+    document.getElementById('refreshTripsBtn').addEventListener('click', () => {
+      tripsOps.loadTripsMonitor();
+    });
+
+    // Auto-refresh every 5 seconds
+    setInterval(() => {
+      tripsOps.loadTripsMonitor();
+    }, 5000);
+  </script>
+</body>
+</html>

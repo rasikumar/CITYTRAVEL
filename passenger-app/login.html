@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Passenger Sign In | TransitNow</title>
+  <link rel="stylesheet" href="/passenger/css/style.css" />
+  <script>
+    // Apply theme immediately to prevent flashing
+    const savedTheme = localStorage.getItem('transitnow_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <a href="/passenger" class="brand">
+      <div class="brand-icon">🚌</div>
+      <div class="brand-title">Transit<span>Now</span></div>
+    </a>
+    <div class="header-actions">
+      <button id="themeToggleBtn" class="btn-icon" aria-label="Toggle Theme">🌙</button>
+    </div>
+  </header>
+
+  <!-- Login Form Container -->
+  <main class="main-content">
+    <div class="auth-container">
+      <div class="auth-header">
+        <h1>Passenger Sign In</h1>
+        <p>Access live bus tracking, ETAs, and transit tickets</p>
+      </div>
+
+      <div id="loginAlert" class="alert-box alert-danger"></div>
+
+      <form id="passengerLoginForm">
+        <div class="form-group">
+          <label class="form-label" for="username">Phone number OR Email</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            class="form-input"
+            placeholder="e.g. 9840123456 or passenger@transitnow.com"
+            required
+            autocomplete="username"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            placeholder="Enter your password"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+
+        <button type="submit" id="submitLoginBtn" class="btn-primary" style="margin-top: 0.5rem;">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Explicit real link to registration per architectural requirement -->
+      <a href="/passenger/register" class="btn-secondary" style="margin-top: 1rem;">
+        Create Passenger Account
+      </a>
+
+      <div class="auth-footer">
+        <p>Looking for Driver or Ops portals? <br />
+        <span style="font-size: 0.8rem; color: var(--text-muted);">Please use the dedicated Driver App or Operations App.</span></p>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { auth } from '/passenger/js/auth.js';
+
+    // Theme toggle
+    const themeBtn = document.getElementById('themeToggleBtn');
+    themeBtn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('transitnow_theme', next);
+      themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    });
+
+    const form = document.getElementById('passengerLoginForm');
+    const alertBox = document.getElementById('loginAlert');
+    const submitBtn = document.getElementById('submitLoginBtn');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      alertBox.style.display = 'none';
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Signing in...';
+
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        await auth.login(username, password);
+        window.location.href = '/passenger';
+      } catch (err) {
+        alertBox.textContent = err.message || 'Login failed. Please verify your credentials.';
+        alertBox.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign In';
+      }
+    });
+  </script>
+</body>
+</html>

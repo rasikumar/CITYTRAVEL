@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Driver Dashboard | TransitNow</title>
+  <link rel="stylesheet" href="/driver-app/css/driver.css" />
+</head>
+<body>
+  <!-- Driver Header -->
+  <header class="driver-header">
+    <div class="driver-brand">
+      <span style="font-size: 1.4rem;">🚌</span>
+      <span style="font-size: 1.15rem; font-weight: 800;">TransitNow</span>
+      <span class="driver-badge">DRIVER DASHBOARD</span>
+    </div>
+
+    <div class="driver-actions">
+      <a href="/driver-app/profile" class="driver-profile-pill">
+        <span>👨‍✈️</span>
+        <span id="driverHeaderId">DRV001</span>
+      </a>
+      <button id="driverLogoutBtn" class="btn-driver-logout">Sign Out</button>
+    </div>
+  </header>
+
+  <main class="driver-container">
+
+    <!-- Driver Info Card -->
+    <div class="driver-info-card">
+      <div class="driver-avatar">👨‍✈️</div>
+      <div class="driver-details">
+        <h2 id="driverName">Loading...</h2>
+        <div class="driver-id-tag">Driver ID: <span id="driverId">--</span></div>
+        <div class="driver-meta">📞 <span id="driverPhone">--</span></div>
+      </div>
+    </div>
+
+    <!-- Shift & Lunch Schedule -->
+    <div class="shift-grid">
+      <div class="shift-card">
+        <div class="shift-label">Duty Shift Hours</div>
+        <div class="shift-value" id="driverShift">--</div>
+      </div>
+      <div class="shift-card">
+        <div class="shift-label">Scheduled Lunch Break</div>
+        <div class="shift-value" id="driverLunch">--</div>
+      </div>
+    </div>
+
+    <!-- Assigned Bus & Route (Strictly driver's assignment only) -->
+    <div class="assignment-card">
+      <div class="assignment-title">Assigned Fleet Vehicle & Route</div>
+
+      <div class="assignment-item">
+        <span class="item-key">Assigned Bus</span>
+        <span class="item-val" id="assignedBus">--</span>
+      </div>
+
+      <div class="assignment-item">
+        <span class="item-key">Bus Registration</span>
+        <span class="item-val" id="assignedBusReg" style="font-family: monospace;">--</span>
+      </div>
+
+      <div class="assignment-item">
+        <span class="item-key">Assigned Route</span>
+        <span class="item-val" id="assignedRoute">--</span>
+      </div>
+    </div>
+
+    <!-- START TRIP Big Cockpit Button -->
+    <div style="margin-top: 1rem;">
+      <button id="startTripBtn" class="btn-cockpit-start">
+        <span>🚀</span>
+        <span>START TRIP</span>
+      </button>
+      <p style="text-align: center; font-size: 0.8rem; color: var(--driver-text-muted); margin-top: 0.6rem;">
+        Clicking Start Trip creates an active transit trip and requests GPS telemetry broadcast permissions.
+      </p>
+    </div>
+
+  </main>
+
+  <script type="module">
+    import { driverAuth } from '/driver-app/js/driver-auth.js';
+    import { DriverTripController } from '/driver-app/js/driver-trip.js';
+
+    document.getElementById('driverLogoutBtn').addEventListener('click', () => {
+      driverAuth.logout();
+    });
+
+    const controller = new DriverTripController();
+    await controller.initDashboard();
+
+    const d = driverAuth.getDriver();
+    if (d) {
+      document.getElementById('driverHeaderId').textContent = d.driver_id;
+    }
+  </script>
+</body>
+</html>
