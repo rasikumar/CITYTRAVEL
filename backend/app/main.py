@@ -175,3 +175,9 @@ def operations_trips():
     return FileResponse(os.path.join(OPERATIONS_DIR, "trips.html"))
 
 app.mount("/operations", StaticFiles(directory=OPERATIONS_DIR, html=True), name="operations-app")
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "service": "TransitNow"
+    }
